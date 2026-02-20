@@ -2,6 +2,7 @@
 
 namespace MindEdge_1.Models
 {
+    // user table
     public class User
     {
         [Key] 
