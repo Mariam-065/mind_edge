@@ -21,6 +21,7 @@ namespace MindEdge_1.Services
             _context.Users.Add(user);
             return await _context.SaveChangesAsync() > 0;
         }
+       
 
         public async Task<User> Login(string email, string password)
         {
