@@ -10,13 +10,11 @@ namespace MindEdge_1.Controllers
     {
         private readonly IAuthService _authService;
 
-        // هنا بنعمل حقن للخدمة عشان الكنترولر يقدر يستخدمها
         public AuthController(IAuthService authService)
         {
             _authService = authService;
         }
 
-        // رابط التسجيل: api/Auth/register
         [HttpPost("register")]
         public async Task<IActionResult> Register(User user)
         {
@@ -25,18 +23,18 @@ namespace MindEdge_1.Controllers
             return BadRequest("فشل في إنشاء الحساب.");
         }
 
-        // رابط الدخول: api/Auth/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var user = await _authService.Login(request.Email, request.Password);
-            if (user == null) return Unauthorized("الإيميل أو كلمة السر خطأ.");
+            var token = await _authService.Login(request.Email, request.Password);
 
-            return Ok(new { message = "تم تسجيل الدخول بنجاح!", userName = user.Name });
+            if (token == null)
+                return Unauthorized(new { message = "الإيميل أو كلمة السر خطأ" });
+
+            return Ok(new { token = token, message = "تم تسجيل الدخول بنجاح" });
         }
     }
 
-    // كلاس بسيط لاستلام بيانات اللوجن فقط
     public class LoginRequest
     {
         public string Email { get; set; }
