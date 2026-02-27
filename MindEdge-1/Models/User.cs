@@ -9,7 +9,7 @@ namespace MindEdge_1.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; } = Guid.NewGuid();
         [Required, StringLength(100)]
-        public string Name { get; set; }
+        public string Name { get; set; }                                                   
         [Required, EmailAddress, StringLength(100)]
         public string Email { get; set; }
         [Required]
