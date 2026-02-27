@@ -16,28 +16,47 @@ namespace MindEdge_1.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(User user)
+        public async Task<IActionResult> Register(RegisterDto model)
         {
-            var result = await _authService.Register(user);
-            if (result) return Ok(new { message = "تم إنشاء الحساب بنجاح!" });
-            return BadRequest("فشل في إنشاء الحساب.");
+            var result = await _authService.RegisterAsync(model);
+            return result == "Success" ? Ok(new { message = result }) : BadRequest(result);
+        }
+
+        [HttpPost("verify-email")]
+        public async Task<IActionResult> VerifyEmail(string email, string code)
+        {
+            var result = await _authService.VerifyEmailAsync(email, code);
+            return result ? Ok(new { message = "Email Verified Successfully" }) : BadRequest("Invalid Code");
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login(LoginDto model)
         {
-            var token = await _authService.Login(request.Email, request.Password);
+            var result = await _authService.LoginAsync(model);
+            if (result.Contains("Invalid") || result.Contains("verify"))
+                return BadRequest(new { message = result });
 
-            if (token == null)
-                return Unauthorized(new { message = "الإيميل أو كلمة السر خطأ" });
-
-            return Ok(new { token = token, message = "تم تسجيل الدخول بنجاح" });
+            return Ok(new { Token = result, message = "Logged in successfully" });
         }
-    }
 
-    public class LoginRequest
-    {
-        public string Email { get; set; }
-        public string Password { get; set; }
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            var result = await _authService.ForgotPasswordAsync(email);
+            if (result)
+                return Ok(new { message = "تم إرسال كود إعادة التعيين إلى بريدك الإلكتروني." });
+
+            return BadRequest(new { message = "هذا البريد الإلكتروني غير مسجل لدينا." });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto model)
+        {
+            var result = await _authService.ResetPasswordAsync(model);
+            if (result)
+                return Ok(new { message = "تم تغيير كلمة السر بنجاح!" });
+
+            return BadRequest(new { message = "الكود غير صحيح أو الإيميل غير موجود." });
+        }
     }
 }
