@@ -28,7 +28,7 @@ builder.Services.AddAuthentication(options => {
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("MindEdge_Super_Secret_Key_2026_For_Graduation_Project")),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("MindEdge_Super_Secret_Key_2026_For_Graduation_Project")),
         ValidateIssuer = true,
         ValidIssuer = "MindEdge_1",
         ValidateAudience = true,

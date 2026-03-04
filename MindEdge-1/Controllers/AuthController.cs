@@ -19,14 +19,14 @@ namespace MindEdge_1.Controllers
         public async Task<IActionResult> Register(RegisterDto model)
         {
             var result = await _authService.RegisterAsync(model);
-            return result == "Success" ? Ok(new { message = result }) : BadRequest(result);
+            return result == "Success" ? Ok(new { message = result }) : BadRequest(new { message = result });
         }
 
         [HttpPost("verify-email")]
         public async Task<IActionResult> VerifyEmail(string email, string code)
         {
             var result = await _authService.VerifyEmailAsync(email, code);
-            return result ? Ok(new { message = "Email Verified Successfully" }) : BadRequest("Invalid Code");
+            return result ? Ok(new { message = "Email Verified Successfully" }) : BadRequest(new { message = "Invalid Code"});
         }
 
         [HttpPost("login")]
@@ -36,7 +36,7 @@ namespace MindEdge_1.Controllers
             if (result.Contains("Invalid") || result.Contains("verify"))
                 return BadRequest(new { message = result });
 
-            return Ok(new { Token = result, message = "Logged in successfully" });
+            return Ok(new { token = result, message = "Logged in successfully" });
         }
 
         [HttpPost("forgot-password")]
