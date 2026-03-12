@@ -1,19 +1,19 @@
-﻿# دي المرحلة اللي بنجهز فيها الكود
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
+EXPOSE 8080
+EXPOSE 8081
 
-# بننسخ ملفات المشروع وبنعمل Restore للمكتبات
-COPY *.csproj ./
-RUN dotnet restore
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY ["MindEdge-1.csproj", "."]
+RUN dotnet restore "./MindEdge-1.csproj"
+COPY . .
+RUN dotnet build "./MindEdge-1.csproj" -c Release -o /app/build
 
-# بننسخ باقي الملفات وبنعمل Publish
-COPY . ./
-RUN dotnet publish -c Release -o out
+FROM build AS publish
+RUN dotnet publish "./MindEdge-1.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# دي المرحلة اللي بنشغل فيها الـ API
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM base AS final
 WORKDIR /app
-COPY --from=build-env /app/out .
-
-# بنقول لدوكر يشغل ملف الـ DLL بتاعك
+COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "MindEdge-1.dll"]
