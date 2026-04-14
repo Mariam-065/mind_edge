@@ -4,6 +4,7 @@ using MindEdge_1.Data;
 using MindEdge_1.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace MindEdge_1.Services
@@ -31,7 +32,7 @@ namespace MindEdge_1.Services
                 Name = model.Name,
                 Email = model.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(model.Password),
-                Code = new Random().Next(100000, 999999).ToString(),
+                Code = RandomNumberGenerator.GetInt32(100000, 999999).ToString(),
                 IsVerified = false
             };
 
@@ -70,7 +71,7 @@ namespace MindEdge_1.Services
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null) return false;
 
-            user.Code = new Random().Next(100000, 999999).ToString();
+            user.Code = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
             await _context.SaveChangesAsync();
 
             await _emailService.SendEmailAsync(user.Email, "MindEdge - Reset Password", $"Your reset code is: {user.Code}");
