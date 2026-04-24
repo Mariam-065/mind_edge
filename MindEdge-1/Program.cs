@@ -13,7 +13,9 @@ builder.Services.AddControllers();
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IFileService, FileService>();
-
+builder.Services.AddStackExchangeRedisCache(options => {
+    options.Configuration = "localhost:6379"; // ده العنوان الافتراضي للبرنامج اللي سطبتيه
+});
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 

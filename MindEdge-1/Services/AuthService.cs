@@ -6,6 +6,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Caching.Distributed; // مكتبة الريديس
+using System.Text.Json; // للتعامل مع الـ JSON
 
 namespace MindEdge_1.Services
 {
@@ -14,44 +16,73 @@ namespace MindEdge_1.Services
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly IEmailService _emailService;
+        private readonly IDistributedCache _cache; // إضافة الـ Cache
 
-        public AuthService(ApplicationDbContext context, IConfiguration configuration, IEmailService emailService)
+        public AuthService(ApplicationDbContext context, IConfiguration configuration, IEmailService emailService, IDistributedCache cache)
         {
             _context = context;
             _configuration = configuration;
             _emailService = emailService;
+            _cache = cache;
         }
 
         public async Task<string> RegisterAsync(RegisterDto model)
         {
+            // 1. التأكد إن المستخدم مش موجود أصلاً في الداتابيز الحقيقية
             if (await _context.Users.AnyAsync(u => u.Email == model.Email))
                 return "User already exists!";
 
-            var user = new User
+            // 2. توليد كود التحقق
+            var verificationCode = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
+
+            // 3. تشفير الباسورد قبل التخزين في الريديس
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password);
+
+            // 4. تجهيز كائن مؤقت للمستخدم
+            var tempUser = new User
             {
                 Name = model.Name,
                 Email = model.Email,
-                Password = BCrypt.Net.BCrypt.HashPassword(model.Password),
-                Code = RandomNumberGenerator.GetInt32(100000, 999999).ToString(),
+                Password = hashedPassword,
+                Code = verificationCode,
                 IsVerified = false
             };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            // 5. تخزين المستخدم في Redis لمدة 15 دقيقة
+            var cacheOptions = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15)
+            };
+            var userJson = JsonSerializer.Serialize(tempUser);
+            await _cache.SetStringAsync($"temp_user_{model.Email}", userJson, cacheOptions);
 
-            await _emailService.SendEmailAsync(user.Email, "MindEdge - Verify Your Email", $"Your verification code is: {user.Code}");
+            // 6. إرسال الإيميل (بالشكل الاحترافي اللي عملناه)
+            await _emailService.SendEmailAsync(model.Email, "MindEdge - Verify Your Email", verificationCode);
 
             return "Success";
         }
 
         public async Task<bool> VerifyEmailAsync(string email, string code)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-            if (user == null || user.Code != code) return false;
+            // 1. البحث عن المستخدم في Redis
+            var userJson = await _cache.GetStringAsync($"temp_user_{email}");
+            if (userJson == null) return false; // الوقت خلص أو الإيميل غلط
 
+            var user = JsonSerializer.Deserialize<User>(userJson);
+
+            // 2. التأكد من الكود
+            if (user.Code != code) return false;
+
+            // 3. الكود صح؟ ننقل المستخدم للداتابيز الحقيقية
             user.IsVerified = true;
             user.Code = null;
+
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
+
+            // 4. حذف البيانات من Redis
+            await _cache.RemoveAsync($"temp_user_{email}");
+
             return true;
         }
 
