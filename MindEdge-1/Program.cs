@@ -8,16 +8,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("MindEdgeCorsPolicy", policy =>
-    {
-        policy.WithOrigins("http://localhost:3000", "https://your-future-domain.com") // Replace with your actual frontend URLs
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials(); // Often needed if you decide to use HttpOnly cookies later
-    });
-});
 
 builder.Services.AddControllers();
 builder.Services.AddTransient<IEmailService, EmailService>();
@@ -56,16 +46,14 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-app.UseCors("MindEdgeCorsPolicy"); 
 
 app.UseAuthentication(); 
 app.UseAuthorization();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.MapControllers();
 
