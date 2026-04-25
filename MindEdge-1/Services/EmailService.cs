@@ -14,7 +14,6 @@ namespace MindEdge_1.Services
 
         public async Task SendEmailAsync(string email, string subject, string message)
         {
-            // يفضل سحب هذه البيانات من appsettings.json للأمان
             var smtpServer = "smtp.gmail.com";
             var port = 587;
             var senderEmail = _configuration["EmailSettings:SenderEmail"];
