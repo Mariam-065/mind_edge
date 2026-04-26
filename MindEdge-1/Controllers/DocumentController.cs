@@ -38,5 +38,20 @@ namespace MindEdge_1.Controllers
             var result = await _apiClient.GetGraphsAsync();
             return Ok(result);
         }
+
+        [HttpGet("get-rules")]
+        public async Task<IActionResult> GetRules(string filename)
+        { 
+            var rules = await _apiClient.GetDocumentDataAsync("rules", filename);
+            return Ok(new { rules });
+        }
+
+        [HttpGet("get-definitions")]
+        public async Task<IActionResult> GetDefinitions(string filename)
+        {
+            var definitions = await _apiClient.GetDocumentDataAsync("definitions", filename);
+            return Ok(new { definitions });
+        }
+
     }
 }

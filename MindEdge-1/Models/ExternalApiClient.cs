@@ -1,7 +1,9 @@
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json; 
 using System.Threading.Tasks;
+using System.IO;
 
 namespace MindEdge_1.Models
 {
@@ -42,5 +44,28 @@ namespace MindEdge_1.Models
             return await response.Content.ReadAsStringAsync();
         }
 
+        public async Task<ChatApiResponse> AskQuestionAsync(string question, string sessionId)
+        {
+            var requestBody = new { question = question, session_id = sessionId };
+
+            var response = await _httpClient.PostAsJsonAsync("chat", requestBody);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<ChatApiResponse>();
+        }
+
+        // Rules & Definitions
+        public async Task<string> GetDocumentDataAsync(string endpoint, string filename)
+        {
+            var response = await _httpClient.GetAsync($"{endpoint}?filename={Uri.EscapeDataString(filename)}");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
+        }
+    }
+
+    //ال DTO بيحل مشكلة ال Return Type
+    public class ChatApiResponse
+    {
+        public string answer { get; set; }
+        public string session_id { get; set; }
     }
 }

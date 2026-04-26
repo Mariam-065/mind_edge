@@ -19,4 +19,9 @@
         public string Code { get; set; }
         public string NewPassword { get; set; }
     }
+    public class ChatRequestDto
+    {
+        public string Question { get; set; } 
+        public string SessionId { get; set; } 
+    }
 }
