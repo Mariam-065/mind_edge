@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MindEdge_1.Models;
 
 namespace MindEdge_1.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class DocumentController : ControllerBase
