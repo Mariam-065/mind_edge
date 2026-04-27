@@ -33,7 +33,7 @@ namespace MindEdge_1.Controllers
             var result = await _fileServaice.DownloadAsync(fileName);
             return result != null ? Ok(new {file = result }) : BadRequest();
         }
-        [HttpPost("ListFiles")]
+        [HttpGet("ListFiles")]
         public async Task<IActionResult> GetFilesAsync()
         {
             var _files = await _fileServaice.GetFilesAsync();
