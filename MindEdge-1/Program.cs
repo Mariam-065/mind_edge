@@ -81,6 +81,11 @@ var app = builder.Build();
 
 string uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "uploads");
 
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+}
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(uploadsPath),
