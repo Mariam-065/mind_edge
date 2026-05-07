@@ -5,28 +5,35 @@ namespace MindEdge_1.Services
     public class FileService : IFileService
     {
         private readonly IWebHostEnvironment _environment;
-        public FileService(IWebHostEnvironment environment)
+        private readonly IConfiguration _configuration;
+        public FileService(IWebHostEnvironment environment, IConfiguration configuration)
         {
             _environment = environment;
+            _configuration = configuration; 
         }
-        public async Task<bool> UploadAsync(FileUploadDto model)
+        public async Task<string> UploadAsync(FileUploadDto model)
         {
             
             if (model.File != null && model.File.Length > 0)
             {
-                String uploadPath = Path.Combine(_environment.WebRootPath, "uploads");
+                String uploadPath = Path.Combine( "uploads");
                 if (!Directory.Exists(uploadPath))
                 {
                     Directory.CreateDirectory(uploadPath);
                 }
-                string filepath = Path.Combine(uploadPath, model.File.FileName);
-                using (var stream = new FileStream(filepath, FileMode.Create))
-                {
+                    string fileExtension = Path.GetExtension(model.File.FileName);
+
+
+                    string newFileName = Guid.NewGuid().ToString() + fileExtension;
+
+
+                    string filepath = Path.Combine(uploadPath, newFileName);                using (var stream = new FileStream(filepath, FileMode.Create))
+                                    {
                     await model.File.CopyToAsync(stream);
                 }
-                return true;
+                return newFileName;
             }
-            return false;
+            return string.Empty;
         }
         public async Task <byte[]?> DownloadAsync(string filename)
         {
@@ -35,7 +42,7 @@ namespace MindEdge_1.Services
                 return null;
 
             }
-            string filePath = Path.Combine(_environment.WebRootPath, "uploads", filename);
+            string filePath = Path.Combine( "uploads", filename);
             if (!System.IO.File.Exists(filePath))
             {
                 return null;
@@ -47,15 +54,15 @@ namespace MindEdge_1.Services
         public async Task<List<string>> GetFilesAsync()
         {
             string baseDirectory = Directory.GetCurrentDirectory();
-            string uploadPath = Path.Combine(baseDirectory, "wwwroot", "uploads");
+            string uploadPath = Path.Combine(baseDirectory,  "uploads");
 
             if (!Directory.Exists(uploadPath))
             {
                 Directory.CreateDirectory(uploadPath);
                 return null;
             }
-
-            var files = Directory.GetFiles(uploadPath).Select(Path.GetFileName).ToList();
+            var apiUrl = _configuration["BaseUrl"];
+            var files = Directory.GetFiles(uploadPath).Select(filePath => apiUrl + "/uploads/" + Path.GetFileName(filePath)).ToList();
             
             return files;
         }

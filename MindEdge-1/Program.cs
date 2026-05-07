@@ -5,7 +5,8 @@ using MindEdge_1.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.OpenApi.Models; // ضيفي المكتبة دي عشان الـ Swagger
+using Microsoft.OpenApi.Models; 
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +24,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 
-// إعدادات Swagger مع دعم JWT Authentication
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "MindEdge API", Version = "v1" });
@@ -72,10 +73,19 @@ builder.Services.AddAuthentication(options => {
 });
 
 builder.Services.AddHttpClient<ExternalApiClient>(client => {
-    client.BaseAddress = new Uri("https://mindedgeai-production.up.railway.app/");
+    client.BaseAddress = new Uri("https://breakfast-winston-enjoying-routing.trycloudflare.com");
+    
 });
 
 var app = builder.Build();
+
+string uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "uploads");
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads"
+});
 
 app.UseHttpsRedirection();
 app.UseAuthentication();

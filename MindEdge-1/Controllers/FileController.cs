@@ -13,34 +13,31 @@ namespace MindEdge_1.Controllers
     [ApiController]
     public class FileController: ControllerBase
     {
-        private readonly IFileService _fileServaice;
+        private readonly IFileService _fileService;
 
-        public FileController(IFileService fileServaice)
+        public FileController(IFileService fileService)
         {
-            _fileServaice = fileServaice;
+            _fileService = fileService;
         }
 
         [HttpPost("Upload")]
         public async Task<IActionResult> UploadAsync(FileUploadDto model)
         {
-            var result = await _fileServaice.UploadAsync(model);
-            return result == true ? Ok(new { message = result }) : BadRequest(new { message = result });
+            var result = await _fileService.UploadAsync(model);
+            return !string.IsNullOrEmpty(result) ? Ok(new { message = true }) : BadRequest(new { message = false });
 
         }
         [HttpPost("Download")]
         public async Task<IActionResult> DownloadAsync(string fileName)
         {
-            var result = await _fileServaice.DownloadAsync(fileName);
+            var result = await _fileService.DownloadAsync(fileName);
             return result != null ? Ok(new {file = result }) : BadRequest();
         }
         [HttpGet("ListFiles")]
         public async Task<IActionResult> GetFilesAsync()
         {
-            var _files = await _fileServaice.GetFilesAsync();
+            var _files = await _fileService.GetFilesAsync();
             return _files != null? Ok(new { files = _files }  ) : BadRequest();
         }
-
-
-
     }
 }

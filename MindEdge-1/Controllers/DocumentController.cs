@@ -1,44 +1,45 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MindEdge_1.Models;
+using MindEdge_1.Services;
+using System.Text.Json;
+using System.Linq;
 
 namespace MindEdge_1.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class DocumentController : ControllerBase
     {
+        private readonly IFileService _fileService;
         private readonly ExternalApiClient _apiClient;
 
-        public DocumentController(ExternalApiClient apiClient)
+        public DocumentController(IFileService fileService, ExternalApiClient apiClient)
         {
+            _fileService = fileService;
             _apiClient = apiClient;
         }
 
-        [HttpPost("analyze")]
-        public async Task<IActionResult> Analyze(IFormFile file)
+       [HttpPost("analyze-visuals")]
+        public async Task<IActionResult> AnalyzeVisuals(IFormFile file)
         {
-            if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded.");
-
+            if (file == null || file.Length == 0) return BadRequest("No file uploaded.");
+            
+            var fileDto = new FileUploadDto { File = file };
+            var filename = await _fileService.UploadAsync(fileDto); 
+            
             using var stream = file.OpenReadStream();
-            var result = await _apiClient.AnalyzeDocumentAsync(stream, file.FileName);
-            return Ok(result);
+            
+            var analysisResult = await _apiClient.AnalyzeDocumentAsync(stream, filename);
+            return Ok(analysisResult);
         }
-
-        [HttpGet("summary")]
-        public async Task<IActionResult> Summary([FromQuery] string filename)
+        [HttpPost("process-audio")]
+        public async Task<IActionResult> ProcessAudio([FromQuery] string fileName)
         {
-            var result = await _apiClient.GetSummaryAsync(filename);
-            return Ok(result);
-        }
 
-        [HttpGet("graphs")]
-        public async Task<IActionResult> Graphs()
-        {
-            var result = await _apiClient.GetGraphsAsync();
-            return Ok(result);
+            var summary = await _apiClient.GetSummaryAsync(fileName);
+            return Ok(summary);
         }
 
         [HttpGet("get-rules")]
@@ -54,6 +55,5 @@ namespace MindEdge_1.Controllers
             var definitions = await _apiClient.GetDocumentDataAsync("definitions", filename);
             return Ok(new { definitions });
         }
-
     }
 }
