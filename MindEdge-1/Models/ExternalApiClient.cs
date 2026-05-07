@@ -54,5 +54,9 @@ namespace MindEdge_1.Models
         }
     }
 
-    public class ChatApiResponse { public string Response { get; set; } }
+    public class ChatApiResponse
+    {
+        public string answer { get; set; }
+        public string session_id { get; set; }
+    }
 }
