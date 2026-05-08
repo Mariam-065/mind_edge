@@ -79,7 +79,7 @@ builder.Services.AddHttpClient<ExternalApiClient>(client => {
 
 var app = builder.Build();
 
-string uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "uploads");
+string uploadsPath = Path.Combine(app.Environment.ContentRootPath, "uploads");
 
 if (!Directory.Exists(uploadsPath))
 {
