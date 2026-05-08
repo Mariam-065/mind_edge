@@ -1,39 +1,40 @@
-﻿    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc;
-    using MindEdge_1.Data;
-    using MindEdge_1.Models;
-    using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Mvc;
+using MindEdge_1.Models;
 
-    [Authorize] 
-    [ApiController]
+namespace MindEdge_1.Controllers
+{
     [Route("api/[controller]")]
+    [ApiController]
     public class ChatController : ControllerBase
     {
-        private readonly ExternalApiClient _apiClient;
-        private readonly ApplicationDbContext _context;
+        private readonly ExternalApiClient _externalApiClient;
 
-        public ChatController(ExternalApiClient apiClient, ApplicationDbContext context)
+        public ChatController(ExternalApiClient externalApiClient)
         {
-            _apiClient = apiClient;
-            _context = context;
+            _externalApiClient = externalApiClient;
         }
 
-        [HttpPost("send-message")]
-        public async Task<IActionResult> SendMessage([FromBody] ChatRequestDto request)
+        [HttpPost("send")]
+        public async Task<IActionResult> Chat([FromBody] ChatRequestDto request)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var aiResponseData = await _apiClient.AskQuestionAsync(request.Question, request.SessionId);
-            var aiEntry = new AIResponse
+            try
             {
-                ResponseText = aiResponseData.answer,
-                CreatedAt = DateTime.Now,
-                DetectedIntent = "Study Query"
-            };
+                var result = await _externalApiClient.SendChatMessageAsync(request);
 
-            _context.AIResponses.Add(aiEntry);
-            await _context.SaveChangesAsync();
+                // لو فيه لينك صوت، بنحوله للينك كامل عشان الفلاتر تعرف تشغله
+                if (!string.IsNullOrEmpty(result.audio_url))
+                {
+                    // بنجيب الـ BaseAddress بتاع الـ AI سيرفر
+                    string aiBaseUrl = "https://instant-attraction-butler-indicating.trycloudflare.com";
+                    result.audio_url = aiBaseUrl + result.audio_url;
+                }
 
-            return Ok(new { answer = aiEntry.ResponseText, sessionId = aiResponseData.session_id });
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
     }
-
+}

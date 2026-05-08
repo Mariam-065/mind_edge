@@ -16,7 +16,8 @@ namespace MindEdge_1.Models
             _env = env;
             
             _httpClient.BaseAddress = new Uri("https://instant-attraction-butler-indicating.trycloudflare.com");
-        
+            _httpClient.Timeout = TimeSpan.FromMinutes(5);
+
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
@@ -44,19 +45,20 @@ namespace MindEdge_1.Models
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync();
         }
-
-        public async Task<ChatApiResponse> AskQuestionAsync(string question, string sessionId)
+        public async Task<ChatResponseDto> SendChatMessageAsync(ChatRequestDto chatRequest)
         {
-            var requestBody = new { question = question, session_id = sessionId };
-            var response = await _httpClient.PostAsJsonAsync("chat", requestBody);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<ChatApiResponse>();
-        }
-    }
+            // بنبعت الـ Dto اللي جاي لنا من الفلاتر زي ما هو للـ AI
+            var response = await _httpClient.PostAsJsonAsync("chat", chatRequest);
 
-    public class ChatApiResponse
-    {
-        public string answer { get; set; }
-        public string session_id { get; set; }
+            // بنعمل تشيك لو السيرفر رد بإيرور (زي 524 اللي شفناه قبل كدة)
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMsg = await response.Content.ReadAsStringAsync();
+                throw new Exception($"AI Server Error: {response.StatusCode} - {errorMsg}");
+            }
+
+            // بنحول الرد لـ Dto بتاعنا ونرجعه
+            return await response.Content.ReadFromJsonAsync<ChatResponseDto>();
+        }
     }
 }

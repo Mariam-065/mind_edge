@@ -1,4 +1,6 @@
-﻿namespace MindEdge_1.Models
+﻿using System.Text.Json.Serialization;
+
+namespace MindEdge_1.Models
 {
     public class RegisterDto
     {
@@ -21,7 +23,22 @@
     }
     public class ChatRequestDto
     {
-        public string Question { get; set; } 
-        public string SessionId { get; set; } 
+        [JsonPropertyName("question")]
+        public string question { get; set; }
+
+        [JsonPropertyName("session_id")]
+        public string session_id { get; set; } = "default";
+
+        [JsonPropertyName("tts")]
+        public bool tts { get; set; }
+
+        [JsonPropertyName("tts_source")]
+        public string tts_source { get; set; } = "response";
+    }
+    public class ChatResponseDto   
+    {
+        public string answer { get; set; }
+        public string audio_url { get; set; }
+        public string session_id { get; set; }
     }
 }
