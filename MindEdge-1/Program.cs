@@ -15,8 +15,9 @@ builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IFileService, FileService>();
 
+//   Read Redis from appsettings.json
 builder.Services.AddStackExchangeRedisCache(options => {
-    options.Configuration = "localhost:6379";
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
 });
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
