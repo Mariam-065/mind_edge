@@ -34,11 +34,11 @@ namespace MindEdge_1.Controllers
             var analysisResult = await _apiClient.AnalyzeDocumentAsync(stream, filename);
             return Ok(analysisResult);
         }
-        [HttpPost("process-audio")]
-        public async Task<IActionResult> ProcessAudio([FromQuery] string fileName)
+        [HttpPost("summary")]
+        public async Task<IActionResult> Summary([FromQuery] string fileName, [FromQuery] bool tts = false)
         {
 
-            var summary = await _apiClient.GetSummaryAsync(fileName);
+            var summary = await _apiClient.GetSummaryAsync(fileName,tts);
             return Ok(summary);
         }
 

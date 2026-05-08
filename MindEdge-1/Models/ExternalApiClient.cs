@@ -31,9 +31,9 @@ namespace MindEdge_1.Models
             return await response.Content.ReadAsStringAsync();
         }
 
-        public async Task<string> GetSummaryAsync(string fileName)
+        public async Task<string> GetSummaryAsync(string fileName,bool tts = false)
         {
-            var response = await _httpClient.GetAsync($"summary?filename={Uri.EscapeDataString(fileName)}");
+            var response = await _httpClient.GetAsync($"summary?filename={Uri.EscapeDataString(fileName)}&tts={tts.ToString().ToLower()}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync();
         }

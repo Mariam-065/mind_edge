@@ -14,7 +14,7 @@ namespace MindEdge_1.Migrations
             migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
-                {
+                {sa
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
