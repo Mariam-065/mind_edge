@@ -47,17 +47,14 @@ namespace MindEdge_1.Models
         }
         public async Task<ChatResponseDto> SendChatMessageAsync(ChatRequestDto chatRequest)
         {
-            // بنبعت الـ Dto اللي جاي لنا من الفلاتر زي ما هو للـ AI
             var response = await _httpClient.PostAsJsonAsync("chat", chatRequest);
 
-            // بنعمل تشيك لو السيرفر رد بإيرور (زي 524 اللي شفناه قبل كدة)
             if (!response.IsSuccessStatusCode)
             {
                 var errorMsg = await response.Content.ReadAsStringAsync();
                 throw new Exception($"AI Server Error: {response.StatusCode} - {errorMsg}");
             }
 
-            // بنحول الرد لـ Dto بتاعنا ونرجعه
             return await response.Content.ReadFromJsonAsync<ChatResponseDto>();
         }
     }
