@@ -14,6 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IStudyPlanService, StudyPlanService>();
 
 //   Read Redis from appsettings.json
 builder.Services.AddStackExchangeRedisCache(options => {

@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using MindEdge_1.Data;
 using MindEdge_1.Models;
 
 namespace MindEdge_1.Controllers
@@ -8,33 +10,38 @@ namespace MindEdge_1.Controllers
     public class ChatController : ControllerBase
     {
         private readonly ExternalApiClient _externalApiClient;
+        private readonly ApplicationDbContext _context;
 
-        public ChatController(ExternalApiClient externalApiClient)
+        public ChatController(ExternalApiClient externalApiClient, ApplicationDbContext context)
         {
             _externalApiClient = externalApiClient;
+            _context = context;
         }
 
-        [HttpPost("send")]
-        public async Task<IActionResult> Chat([FromBody] ChatRequestDto request)
+        [HttpPost("chat")]
+        public async Task<IActionResult> Chat(string question, string sessionId, bool tts = false)
         {
-            try
-            {
-                var result = await _externalApiClient.SendChatMessageAsync(request);
+            var session = await _context.ChatbotRooms.FirstOrDefaultAsync(s => s.SessionId == sessionId);
 
-                // لو فيه لينك صوت، بنحوله للينك كامل عشان الفلاتر تعرف تشغله
-                if (!string.IsNullOrEmpty(result.audio_url))
-                {
-                    // بنجيب الـ BaseAddress بتاع الـ AI سيرفر
-                    string aiBaseUrl = "https://instant-attraction-butler-indicating.trycloudflare.com";
-                    result.audio_url = aiBaseUrl + result.audio_url;
-                }
+            if (session == null) return BadRequest("No file has been uploaded.!");
 
-                return Ok(result);
-            }
-            catch (Exception ex)
+            var chatRequest = new ChatRequestDto
             {
-                return StatusCode(500, new { message = ex.Message });
+                question = question,
+                filename = session.FileName, 
+                session_id = sessionId,
+                tts = tts ,
+                tts_source = "response"
+            };
+
+            var aiResponse = await _externalApiClient.SendChatMessageAsync(chatRequest);
+            if (aiResponse != null && !string.IsNullOrEmpty(aiResponse.audio_url))
+            {
+                string aiBaseUrl = "https://instant-attraction-butler-indicating.trycloudflare.com";
+
+                aiResponse.audio_url = aiBaseUrl + aiResponse.audio_url;
             }
+            return Ok(aiResponse);
         }
     }
 }

@@ -16,5 +16,8 @@ namespace MindEdge_1.Data
         public DbSet<ChatbotRoom> ChatbotRooms { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<AIResponse> AIResponses { get; set; }
+        public DbSet<StudyPlan> StudyPlans { get; set; }
+        public DbSet<StudyDay> StudyDays { get; set; }
+        public DbSet<StudyTask> StudyTasks { get; set; }
     }
 }

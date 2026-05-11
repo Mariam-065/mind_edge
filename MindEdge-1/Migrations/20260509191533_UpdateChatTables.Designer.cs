@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MindEdge_1.Data;
 
@@ -11,9 +12,11 @@ using MindEdge_1.Data;
 namespace MindEdge_1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260509191533_UpdateChatTables")]
+    partial class UpdateChatTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -132,84 +135,6 @@ namespace MindEdge_1.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("MindEdge_1.Models.StudyDay", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("DayNumber")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StudyPlanId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Topic")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudyPlanId");
-
-                    b.ToTable("StudyDays");
-                });
-
-            modelBuilder.Entity("MindEdge_1.Models.StudyPlan", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("StudyPlans");
-                });
-
-            modelBuilder.Entity("MindEdge_1.Models.StudyTask", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Duration")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Priority")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("StudyDayId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TaskName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudyDayId");
-
-                    b.ToTable("StudyTasks");
-                });
-
             modelBuilder.Entity("MindEdge_1.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -278,42 +203,10 @@ namespace MindEdge_1.Migrations
                     b.Navigation("ChatbotRoom");
                 });
 
-            modelBuilder.Entity("MindEdge_1.Models.StudyDay", b =>
-                {
-                    b.HasOne("MindEdge_1.Models.StudyPlan", "StudyPlan")
-                        .WithMany("Days")
-                        .HasForeignKey("StudyPlanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("StudyPlan");
-                });
-
-            modelBuilder.Entity("MindEdge_1.Models.StudyTask", b =>
-                {
-                    b.HasOne("MindEdge_1.Models.StudyDay", "StudyDay")
-                        .WithMany("Tasks")
-                        .HasForeignKey("StudyDayId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("StudyDay");
-                });
-
             modelBuilder.Entity("MindEdge_1.Models.Message", b =>
                 {
                     b.Navigation("AIResponse")
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("MindEdge_1.Models.StudyDay", b =>
-                {
-                    b.Navigation("Tasks");
-                });
-
-            modelBuilder.Entity("MindEdge_1.Models.StudyPlan", b =>
-                {
-                    b.Navigation("Days");
                 });
 #pragma warning restore 612, 618
         }
