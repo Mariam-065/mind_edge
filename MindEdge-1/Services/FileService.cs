@@ -1,4 +1,8 @@
-﻿using MindEdge_1.Models;
+﻿using Microsoft.AspNetCore.Hosting;
+using MindEdge_1.Models;
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.Extensions.Configuration;
 
 namespace MindEdge_1.Services
 {
@@ -6,67 +10,84 @@ namespace MindEdge_1.Services
     {
         private readonly IWebHostEnvironment _environment;
         private readonly IConfiguration _configuration;
+
         public FileService(IWebHostEnvironment environment, IConfiguration configuration)
         {
             _environment = environment;
-            _configuration = configuration; 
+            _configuration = configuration;
         }
-        public async Task<string> UploadAsync(FileUploadDto model)
+
+        public async Task<string> UploadAsync(FileUploadDto model, string userId)
         {
-            
-            if (model.File != null && model.File.Length > 0)
-            {
-                String uploadPath = Path.Combine( "uploads");
-                if (!Directory.Exists(uploadPath))
-                {
-                    Directory.CreateDirectory(uploadPath);
-                }
-                    string fileExtension = Path.GetExtension(model.File.FileName);
+            if (model.File == null || model.File.Length == 0)
+                return string.Empty;
 
+            var userFolder = GetUserUploadFolder(userId);
 
-                    string newFileName = Guid.NewGuid().ToString() + fileExtension;
+            if (!Directory.Exists(userFolder))
+                Directory.CreateDirectory(userFolder);
 
+            var fileExtension = Path.GetExtension(model.File.FileName);
+            var newFileName = Guid.NewGuid().ToString() + fileExtension;
+            var filePath = Path.Combine(userFolder, newFileName);
 
-                    string filepath = Path.Combine(uploadPath, newFileName);                using (var stream = new FileStream(filepath, FileMode.Create))
-                                    {
-                    await model.File.CopyToAsync(stream);
-                }
-                return newFileName;
-            }
-            return string.Empty;
+            using var stream = new FileStream(filePath, FileMode.Create);
+            await model.File.CopyToAsync(stream);
+
+            return newFileName;
         }
-        public async Task <byte[]?> DownloadAsync(string filename)
+
+        public async Task<List<FileResponseDto>> GetFilesAsync(string userId)
         {
-            if (string.IsNullOrEmpty(filename))
-            {
-                return null;
+            var userFolder = GetUserUploadFolder(userId);
 
-            }
-            string filePath = Path.Combine( "uploads", filename);
-            if (!System.IO.File.Exists(filePath))
-            {
-                return null;
+            if (!Directory.Exists(userFolder))
+                return new List<FileResponseDto>();
 
-            }
-            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
-            return fileBytes;
-        }
-        public async Task<List<string>> GetFilesAsync()
-        {
-            string baseDirectory = Directory.GetCurrentDirectory();
-            string uploadPath = Path.Combine(baseDirectory,  "uploads");
+            var apiUrl = _configuration["BaseUrl"] ?? "";
+            var safeUserId = HashUserId(userId);
 
-            if (!Directory.Exists(uploadPath))
-            {
-                Directory.CreateDirectory(uploadPath);
-                return null;
-            }
-            var apiUrl = _configuration["BaseUrl"];
-            var files = Directory.GetFiles(uploadPath).Select(filePath => apiUrl + "/uploads/" + Path.GetFileName(filePath)).ToList();
-            
+            var files = Directory.GetFiles(userFolder)
+                .Select(filePath => {
+                    var fileName = Path.GetFileName(filePath);
+                    return new FileResponseDto
+                    {
+                        FileName = fileName,
+                        FileUrl = $"{apiUrl}/uploads/{safeUserId}/{fileName}"
+                    };
+                })
+                .ToList();
+
             return files;
         }
 
-      
+        public async Task<byte[]?> DownloadAsync(string filename, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(filename)) return null;
+
+            var userFolder = GetUserUploadFolder(userId);
+            var safeFileName = Path.GetFileName(filename);
+            var filePath = Path.Combine(userFolder, safeFileName);
+
+            if (!File.Exists(filePath)) return null;
+
+            return await File.ReadAllBytesAsync(filePath);
+        }
+
+        private string GetUserUploadFolder(string userId)
+        {
+            var rootPath = _environment.WebRootPath;
+            if (string.IsNullOrEmpty(rootPath))
+                rootPath = _environment.ContentRootPath;
+
+            var safeUserId = HashUserId(userId);
+            return Path.Combine(rootPath, "uploads", safeUserId);
+        }
+
+        private static string HashUserId(string userId)
+        {
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(userId));
+            return Convert.ToHexString(bytes).ToLower();
+        }
     }
 }
