@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
+
 namespace MindEdge_1.Models
 {
     public class RegisterDto
@@ -44,6 +45,7 @@ namespace MindEdge_1.Models
         public string audio_url { get; set; }
         public string session_id { get; set; }
     }
+<<<<<<< HEAD
 public class StudyPlanResponseDto
  {
      [JsonPropertyName("status")]
@@ -85,4 +87,52 @@ public class StudyPlanResponseDto
      [JsonPropertyName("priority")]
      public string Priority { get; set; }
  }
+=======
+    public class StudyPlanResponseDto
+    {
+        [JsonPropertyName("status")]
+        public string Status { get; set; }
+
+        [JsonPropertyName("filename")]
+        public string Filename { get; set; }
+
+        [JsonPropertyName("study_plan")]
+        public List<StudyDayDto> StudyPlan { get; set; } = new();
+    }
+    public class AIRequest
+    {
+        public int days { get; set; }
+        public int hours_per_day { get; set; }
+        public string level { get; set; }
+    }
+
+    public class StudyDayDto
+    {
+        [JsonPropertyName("day")]
+        public int Day { get; set; }
+
+        [JsonPropertyName("topic")]
+        public string Topic { get; set; }
+
+        [JsonPropertyName("tasks")]
+        public List<StudyTaskDto> Tasks { get; set; } = new();
+    }
+
+    public class StudyTaskDto
+    {
+        [JsonPropertyName("task_name")]
+        public string TaskName { get; set; }
+
+        [JsonPropertyName("duration")]
+        public string Duration { get; set; }
+
+        [JsonPropertyName("priority")]
+        public string Priority { get; set; }
+    }
+    public class SummaryRequestDto
+    {
+        public string Title { get; set; } = "Summary";
+        public string Content { get; set; } = string.Empty;
+    }
+>>>>>>> 1fa47f3bc21612e4eb00a3627a06e188035cf1ee
 }

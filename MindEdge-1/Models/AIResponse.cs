@@ -18,6 +18,6 @@ namespace MindEdge_1.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public Guid MessageId { get; set; }
-        public Message Message { get; set; }
+        public ChatMessage ChatMessage { get; set; }
     }
 }

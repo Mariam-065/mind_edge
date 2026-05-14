@@ -1,12 +1,14 @@
-using Microsoft.EntityFrameworkCore;
-using MindEdge_1.Data;
-using MindEdge_1.Services;
-using MindEdge_1.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.OpenApi.Models; 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models; 
+using MindEdge_1;
+using MindEdge_1.Data;
+using MindEdge_1.Models;
+using MindEdge_1.Services;
+using System.Text;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,14 @@ builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IStudyPlanService, StudyPlanService>();
+<<<<<<< HEAD
+=======
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddHostedService<ChatCleanupService>();
+
+
+QuestPDF.Settings.License = LicenseType.Community; 
+>>>>>>> 1fa47f3bc21612e4eb00a3627a06e188035cf1ee
 
 //   Read Redis from appsettings.json
 builder.Services.AddStackExchangeRedisCache(options => {
@@ -75,7 +85,7 @@ builder.Services.AddAuthentication(options => {
 });
 
 builder.Services.AddHttpClient<ExternalApiClient>(client => {
-    client.BaseAddress = new Uri("https://breakfast-winston-enjoying-routing.trycloudflare.com");
+    client.BaseAddress = new Uri(builder.Configuration["AIUrl"]??"");
     
 });
 
@@ -88,9 +98,12 @@ if (!Directory.Exists(uploadsPath))
     Directory.CreateDirectory(uploadsPath);
 }
 
+app.UseStaticFiles(); 
+
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(uploadsPath),
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "uploads")),
     RequestPath = "/uploads"
 });
 

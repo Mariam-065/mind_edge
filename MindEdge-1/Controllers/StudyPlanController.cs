@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+﻿using Microsoft.AspNetCore.Authorization;
+>>>>>>> 1fa47f3bc21612e4eb00a3627a06e188035cf1ee
 using Microsoft.AspNetCore.Mvc;
 using MindEdge_1.Data;
 using MindEdge_1.Models;
@@ -8,6 +12,10 @@ namespace MindEdge_1.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+<<<<<<< HEAD
+=======
+    [Authorize]
+>>>>>>> 1fa47f3bc21612e4eb00a3627a06e188035cf1ee
     public class StudyPlanController : ControllerBase
     {
         private readonly IStudyPlanService _studyPlanService;

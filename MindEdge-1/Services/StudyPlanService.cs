@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 using Microsoft.EntityFrameworkCore;
+=======
+﻿using Microsoft.EntityFrameworkCore;
+>>>>>>> 1fa47f3bc21612e4eb00a3627a06e188035cf1ee
 using MindEdge_1.Data;
 using MindEdge_1.Models;
 using System;
@@ -17,7 +21,11 @@ namespace MindEdge_1.Services
             _context = context;
         }
 
+<<<<<<< HEAD
         // 1. توليد وحفظ في خطوة واحدة
+=======
+
+>>>>>>> 1fa47f3bc21612e4eb00a3627a06e188035cf1ee
         public async Task<StudyPlan> GenerateAndSavePlanAsync(StudyPlanResponseDto aiResponse)
         {
             var newPlan = new StudyPlan
@@ -90,6 +98,7 @@ namespace MindEdge_1.Services
                 .FirstOrDefaultAsync(p => p.FileName == fileName);
         }
     }
+<<<<<<< HEAD
 }
 
 
@@ -99,3 +108,6 @@ namespace MindEdge_1.Services
 
 
 
+=======
+}
+>>>>>>> 1fa47f3bc21612e4eb00a3627a06e188035cf1ee

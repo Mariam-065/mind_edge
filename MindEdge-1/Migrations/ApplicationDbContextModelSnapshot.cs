@@ -28,6 +28,9 @@ namespace MindEdge_1.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("ChatMessageId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -46,10 +49,40 @@ namespace MindEdge_1.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MessageId")
-                        .IsUnique();
+                    b.HasIndex("ChatMessageId");
 
                     b.ToTable("AIResponses");
+                });
+
+            modelBuilder.Entity("MindEdge_1.Models.ChatMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SessionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ChatMessages");
                 });
 
             modelBuilder.Entity("MindEdge_1.Models.ChatbotRoom", b =>
@@ -102,34 +135,93 @@ namespace MindEdge_1.Migrations
                     b.ToTable("Documents");
                 });
 
-            modelBuilder.Entity("MindEdge_1.Models.Message", b =>
+            modelBuilder.Entity("MindEdge_1.Models.StudyDay", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ChatbotRoomId")
-                        .HasColumnType("uniqueidentifier");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+<<<<<<< HEAD
                     b.Property<string>("ChatbotRoomSessionId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Content")
+=======
+                    b.Property<int>("DayNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudyPlanId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Topic")
+>>>>>>> 1fa47f3bc21612e4eb00a3627a06e188035cf1ee
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Sender")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("SentAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
+<<<<<<< HEAD
                     b.HasIndex("ChatbotRoomSessionId");
+=======
+                    b.HasIndex("StudyPlanId");
+>>>>>>> 1fa47f3bc21612e4eb00a3627a06e188035cf1ee
 
-                    b.ToTable("Messages");
+                    b.ToTable("StudyDays");
+                });
+
+            modelBuilder.Entity("MindEdge_1.Models.StudyPlan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StudyPlans");
+                });
+
+            modelBuilder.Entity("MindEdge_1.Models.StudyTask", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Duration")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StudyDayId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TaskName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudyDayId");
+
+                    b.ToTable("StudyTasks");
                 });
 
             modelBuilder.Entity("MindEdge_1.Models.StudyDay", b =>
@@ -249,6 +341,7 @@ namespace MindEdge_1.Migrations
 
             modelBuilder.Entity("MindEdge_1.Models.AIResponse", b =>
                 {
+<<<<<<< HEAD
                     b.HasOne("MindEdge_1.Models.Message", "Message")
                         .WithOne("AIResponse")
                         .HasForeignKey("MindEdge_1.Models.AIResponse", "MessageId")
@@ -256,6 +349,15 @@ namespace MindEdge_1.Migrations
                         .IsRequired();
 
                     b.Navigation("Message");
+=======
+                    b.HasOne("MindEdge_1.Models.ChatMessage", "ChatMessage")
+                        .WithMany()
+                        .HasForeignKey("ChatMessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChatMessage");
+>>>>>>> 1fa47f3bc21612e4eb00a3627a06e188035cf1ee
                 });
 
             modelBuilder.Entity("MindEdge_1.Models.Document", b =>
@@ -269,15 +371,24 @@ namespace MindEdge_1.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("MindEdge_1.Models.Message", b =>
+            modelBuilder.Entity("MindEdge_1.Models.StudyDay", b =>
                 {
+<<<<<<< HEAD
                     b.HasOne("MindEdge_1.Models.ChatbotRoom", "ChatbotRoom")
                         .WithMany()
                         .HasForeignKey("ChatbotRoomSessionId");
+=======
+                    b.HasOne("MindEdge_1.Models.StudyPlan", "StudyPlan")
+                        .WithMany("Days")
+                        .HasForeignKey("StudyPlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+>>>>>>> 1fa47f3bc21612e4eb00a3627a06e188035cf1ee
 
-                    b.Navigation("ChatbotRoom");
+                    b.Navigation("StudyPlan");
                 });
 
+<<<<<<< HEAD
             modelBuilder.Entity("MindEdge_1.Models.StudyDay", b =>
                 {
                     b.HasOne("MindEdge_1.Models.StudyPlan", "StudyPlan")
@@ -291,10 +402,15 @@ namespace MindEdge_1.Migrations
 
             modelBuilder.Entity("MindEdge_1.Models.StudyTask", b =>
                 {
+=======
+            modelBuilder.Entity("MindEdge_1.Models.StudyTask", b =>
+                {
+>>>>>>> 1fa47f3bc21612e4eb00a3627a06e188035cf1ee
                     b.HasOne("MindEdge_1.Models.StudyDay", "StudyDay")
                         .WithMany("Tasks")
                         .HasForeignKey("StudyDayId")
                         .OnDelete(DeleteBehavior.Cascade)
+<<<<<<< HEAD
                         .IsRequired();
 
                     b.Navigation("StudyDay");
@@ -303,7 +419,21 @@ namespace MindEdge_1.Migrations
             modelBuilder.Entity("MindEdge_1.Models.Message", b =>
                 {
                     b.Navigation("AIResponse")
+=======
+>>>>>>> 1fa47f3bc21612e4eb00a3627a06e188035cf1ee
                         .IsRequired();
+
+                    b.Navigation("StudyDay");
+                });
+
+            modelBuilder.Entity("MindEdge_1.Models.StudyDay", b =>
+                {
+                    b.Navigation("Tasks");
+                });
+
+            modelBuilder.Entity("MindEdge_1.Models.StudyPlan", b =>
+                {
+                    b.Navigation("Days");
                 });
 
             modelBuilder.Entity("MindEdge_1.Models.StudyDay", b =>
