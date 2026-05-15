@@ -21,7 +21,6 @@ namespace MindEdge_1.Controllers
         [HttpPost("Upload")]
         public async Task<IActionResult> UploadAsync([FromForm] FileUploadDto model)
         {
-            // سحب الـ ID من التوكن
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
                          ?? User.FindFirstValue("sub");
 

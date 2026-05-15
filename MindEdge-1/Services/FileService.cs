@@ -27,12 +27,38 @@ namespace MindEdge_1.Services
             if (!Directory.Exists(userFolder))
                 Directory.CreateDirectory(userFolder);
 
-            var fileExtension = Path.GetExtension(model.File.FileName);
+          
+            var originalFileName = model.File.FileName;
+            var metadataPath = Path.Combine(userFolder, "metadata.txt");
+
+          
+            if (File.Exists(metadataPath))
+            {
+                var lines = await File.ReadAllLinesAsync(metadataPath);
+                foreach (var line in lines)
+                {
+                    var parts = line.Split('|');
+                
+                    if (parts.Length == 2 && parts[0].Equals(originalFileName, StringComparison.OrdinalIgnoreCase))
+                    {
+                       
+                        return parts[1];
+                    }
+                }
+            }
+
+            
+            var fileExtension = Path.GetExtension(originalFileName);
             var newFileName = Guid.NewGuid().ToString() + fileExtension;
             var filePath = Path.Combine(userFolder, newFileName);
 
-            using var stream = new FileStream(filePath, FileMode.Create);
-            await model.File.CopyToAsync(stream);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await model.File.CopyToAsync(stream);
+            }
+
+            
+            await File.AppendAllLinesAsync(metadataPath, new[] { $"{originalFileName}|{newFileName}" });
 
             return newFileName;
         }
@@ -47,7 +73,9 @@ namespace MindEdge_1.Services
             var apiUrl = _configuration["BaseUrl"] ?? "";
             var safeUserId = HashUserId(userId);
 
+            
             var files = Directory.GetFiles(userFolder)
+                .Where(filePath => Path.GetFileName(filePath) != "metadata.txt")
                 .Select(filePath => {
                     var fileName = Path.GetFileName(filePath);
                     return new FileResponseDto
@@ -79,8 +107,7 @@ namespace MindEdge_1.Services
             var rootPath = _environment.WebRootPath;
             if (string.IsNullOrEmpty(rootPath))
                 rootPath = _environment.ContentRootPath;
-
-            var safeUserId = HashUserId(userId);
+var safeUserId = HashUserId(userId);
             return Path.Combine(rootPath, "uploads", safeUserId);
         }
 

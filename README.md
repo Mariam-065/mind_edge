@@ -5,7 +5,7 @@ This repository contains the backend infrastructure for MindEdge, built with a f
 The API is deployed and ready for testing. You can explore and trigger the endpoints through the Swagger UI:
    https://midedge.runasp.net
 
-🛠 Technical Stack
+Technical Stack
 Framework: .NET 10 (ASP.NET Core)
 
 Language: C#
@@ -16,7 +16,7 @@ Authentication: JWT (JSON Web Tokens)
 
 Documentation: Swagger / OpenAPI
 
-⚙️ Setup & Installation
+Setup & Installation
 To run this project locally, follow these steps:
 
 1. Prerequisites
@@ -42,14 +42,14 @@ Required for email services to function correctly:
 im appsettings.json "EmailSettings" "AppPassword" Add:
 xsmtpsib-5c4fd056c93f7df95b51dac4306fbfa4cb449773588b50986ba22186619a023b-BSyRah10YVieLg6d
 
-🔒 Security & Architecture
+ Security & Architecture
 JWT Authentication: Secure access to protected resources using bearer tokens.
 
 Scalable Structure: Implements clean separation of concerns between Controllers and Business Logic.
 
 API Documentation: Fully interactive documentation via Swagger UI for seamless frontend integration.
 
-👥 Contributors
+ Contributors
 This project was developed by:
 *   **Mariem Mohamad** 
     *   GitHub Accounts: [Mariam-065](https://github.com/Mariam-065) & [Abdelrahman2432006](https://github.com/Abdelrahman2432006)
@@ -58,13 +58,14 @@ This project was developed by:
 
 ---
 
-✅ Ready to Go
+ Ready to Go
 Finally, after these steps, you can use the project smoothly!
 Made By: Mariem Mohammed with two 
 
-📧 Contact & Support
+ Contact & Support
 For any inquiries regarding the technical implementation or further details, feel free to reach out:
 
 Developer: Mariem Mohammed & Zena Mohammed
 
 Email: mariemmohammed065@gmail.com
+Email:zeinamuhaameed@gmail.com
